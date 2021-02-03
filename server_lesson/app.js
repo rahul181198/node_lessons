@@ -1,11 +1,38 @@
 const express= require('express');
+const morgan =require('morgan');
+const mongoose = require('mongoose');
 //express app
 const app =express();
+
+//connection to mongodb
+const dbURI= 'mongodb+srv://rahul:rahul1234@nodetuts.xqw3h.mongodb.net/note-tuts?retryWrites=true&w=majority';
+//mongoose.connect(dbURI);
+mongoose.connect(dbURI, { useNewUrlParser: true, useUnifiedTopology: true })
+.then(result =>app.listen(3000))
+  .catch(err => console.log(err));
 //register view engine
 app.set('view engine','ejs');
 //app.set('views','myviews'); this is used when we want to make a diffrenet folder  our views folder 
 // listen for requests
-app.listen(3000);
+
+
+ 
+// middleware & static files
+app.use(express.static('public'));
+
+app.use((req, res, next) => {
+    console.log('new request made:');
+    console.log('host: ', req.hostname);
+    console.log('path: ', req.path);
+    console.log('method: ', req.method);
+    next();
+  });
+  
+  app.use((req, res, next) => {
+    console.log('in the next middleware');
+    next();
+  });
+  app.use(morgan('dev'));
 app.get('/',(req,res)=>{
     //res.send('<p>home page</p>');
     const blogs = [
