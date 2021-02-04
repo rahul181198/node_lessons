@@ -5,6 +5,7 @@ const Blog = require('./models/blog');
 //express app
 const app =express();
 
+
 //connection to mongodb
 const dbURI= 'mongodb+srv://rahul:rahul1234@nodetuts.xqw3h.mongodb.net/note-tuts?retryWrites=true&w=majority';
 //mongoose.connect(dbURI);
@@ -20,8 +21,9 @@ app.set('view engine','ejs');
  
 // middleware & static files
 app.use(express.static('public'));
+app.use(express.urlencoded({extended:true}));
 
-app.use((req, res, next) => {
+/*app.use((req, res, next) => {
     console.log('new request made:');
     console.log('host: ', req.hostname);
     console.log('path: ', req.path);
@@ -32,13 +34,13 @@ app.use((req, res, next) => {
   app.use((req, res, next) => {
     console.log('in the next middleware');
     next();
-  });
+  });*/
   app.use(morgan('dev'));
 
   // mongoose & mongo tests
 app.get('/add-blog', (req, res) => {
     const blog = new Blog({
-      title: 'new blog',
+      title: 'new blog 23',
       snippet: 'about my new blog',
       body: 'more about my new blog'
     })
@@ -62,7 +64,7 @@ app.get('/add-blog', (req, res) => {
   });
   
   app.get('/single-blog', (req, res) => {
-    Blog.findById('601b7848157a47a24d6e8293')
+    Blog.findById('601b7b719ac753a4a9477b61')
       .then(result => {
         res.send(result);
       })
@@ -73,7 +75,7 @@ app.get('/add-blog', (req, res) => {
   
 
 
-app.get('/',(req,res)=>{
+/*app.get('/',(req,res)=>{
     //res.send('<p>home page</p>');
     const blogs = [
         {title: 'Yoshi finds eggs', snippet: 'Lorem ipsum dolor sit amet consectetur'},
@@ -83,7 +85,35 @@ app.get('/',(req,res)=>{
     //res.sendFile('./views/index.html',{root:__dirname});
      //res.render('index');
      res.render('index',{title:'home',blogs:blogs});
+})*/
+app.get('/',(req,res)=>{
+    res.redirect('/blogs');
 })
+app.get('/blogs',(req,res)=>{
+    
+        Blog.find().sort({ createdAt: -1 })
+          .then(result => {
+            res.render('index',{title:'all blogs',blogs:result}); 
+          })
+          .catch(err => {
+            console.log(err);
+          });
+      
+    });
+
+    app.post('/blogs',(req,res)=>{
+        const blog = new Blog(req.body);
+        
+        blog.save()
+      .then(result => {
+        res.redirect('/blogs');
+      })
+      .catch(err => {
+        console.log(err);
+      });
+
+    });
+
 app.get('/about',(req,res)=>{
     //res.send('<p>about page</p>');
     //res.sendFile('./views/about.html',{root:__dirname});
